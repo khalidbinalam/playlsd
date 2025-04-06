@@ -49,9 +49,12 @@ const Index = () => {
       <div className="container mx-auto px-4 md:px-6 py-12">
         <h2 className="text-3xl font-bold text-gradient-primary mb-8 font-display text-center">
           {isFilteredView 
-            ? `${getCategoryDisplayName()} Content` 
-            : "Latest Embeds"}
+            ? `${getCategoryDisplayName()} Playlists` 
+            : "Playlists by PlayLSD"}
         </h2>
+        <p className="text-center text-gray-400 mb-8 max-w-2xl mx-auto">
+          Discover our curated music playlists from YouTube and Spotify. Only verified admins can create and share these playlists.
+        </p>
         
         <EmbedFeed embeds={filteredEmbeds} />
       </div>

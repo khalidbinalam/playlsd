@@ -44,7 +44,7 @@ const EmbedFeed = ({ embeds }: EmbedFeedProps) => {
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
             <Input
               id="search"
-              placeholder="Search embeds..."
+              placeholder="Search playlists..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9 bg-playlsd-dark/50 border-playlsd-purple/30"
@@ -72,19 +72,21 @@ const EmbedFeed = ({ embeds }: EmbedFeedProps) => {
           </div>
           
           <div>
-            <Label htmlFor="type-filter" className="sr-only">Filter by Type</Label>
+            <Label htmlFor="type-filter" className="sr-only">Filter by Platform</Label>
             <Select value={selectedType} onValueChange={setSelectedType}>
               <SelectTrigger id="type-filter" className="bg-playlsd-dark/50 border-playlsd-purple/30">
                 <div className="flex items-center">
                   <Filter className="mr-2 h-4 w-4" />
-                  <SelectValue placeholder="Filter by source" />
+                  <SelectValue placeholder="Filter by platform" />
                 </div>
               </SelectTrigger>
               <SelectContent position="popper">
-                <SelectItem value="all">All Sources</SelectItem>
+                <SelectItem value="all">All Platforms</SelectItem>
                 {types.map((type) => (
                   <SelectItem key={type} value={type}>
-                    {type.charAt(0).toUpperCase() + type.slice(1)}
+                    {type === "youtube" ? "YouTube Music" : 
+                     type === "spotify" ? "Spotify" : 
+                     type.charAt(0).toUpperCase() + type.slice(1)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -95,7 +97,7 @@ const EmbedFeed = ({ embeds }: EmbedFeedProps) => {
 
       {filteredEmbeds.length === 0 ? (
         <div className="text-center py-16">
-          <p className="text-lg text-gray-400">No embeds found matching your filters.</p>
+          <p className="text-lg text-gray-400">No playlists found matching your filters.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
