@@ -4,10 +4,11 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
-import { HomeIcon, LogOut, Bell, FileText, ListMusic } from "lucide-react";
+import { HomeIcon, LogOut, Bell, FileText, ListMusic, InboxIcon } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import NotificationCenter from "@/components/admin/NotificationCenter";
 import NewsManager from "@/components/admin/NewsManager";
+import SubmissionReview from "@/components/admin/SubmissionReview";
 
 const Admin = () => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -101,8 +102,12 @@ const Admin = () => {
       </header>
       
       <main className="container mx-auto px-4 md:px-6 py-8">
-        <Tabs defaultValue="news" className="w-full">
+        <Tabs defaultValue="submissions" className="w-full">
           <TabsList className="glass-morphism mb-6">
+            <TabsTrigger value="submissions" className="flex items-center">
+              <InboxIcon className="mr-2 h-4 w-4" />
+              Submissions
+            </TabsTrigger>
             <TabsTrigger value="news" className="flex items-center">
               <FileText className="mr-2 h-4 w-4" />
               News Posts
@@ -116,6 +121,10 @@ const Admin = () => {
               Notifications
             </TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="submissions" className="space-y-6">
+            <SubmissionReview />
+          </TabsContent>
           
           <TabsContent value="news" className="space-y-6">
             <NewsManager />

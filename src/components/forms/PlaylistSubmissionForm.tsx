@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+import { useSubmissions } from "@/hooks/use-submissions";
 
 const formSchema = z.object({
   artistName: z.string().min(2, {
@@ -37,6 +38,7 @@ type FormValues = z.infer<typeof formSchema>;
 const PlaylistSubmissionForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { addSubmission } = useSubmissions();
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -54,9 +56,18 @@ const PlaylistSubmissionForm = () => {
   const onSubmit = async (data: FormValues) => {
     setIsSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Playlist submission data:", data);
+    try {
+      // Add the submission to the system
+      addSubmission({
+        type: 'playlist',
+        artistName: data.artistName,
+        trackLink: data.trackLink,
+        targetPlaylist: data.targetPlaylist,
+        email: data.email,
+        genre: data.genre,
+        vibe: data.vibe,
+        message: data.message
+      });
       
       toast({
         title: "Playlist Submission Received!",
@@ -64,8 +75,16 @@ const PlaylistSubmissionForm = () => {
       });
       
       form.reset();
+    } catch (error) {
+      toast({
+        title: "Submission Failed",
+        description: "There was an error with your submission. Please try again.",
+        variant: "destructive"
+      });
+      console.error(error);
+    } finally {
       setIsSubmitting(false);
-    }, 1500);
+    }
   };
 
   const genres = [
