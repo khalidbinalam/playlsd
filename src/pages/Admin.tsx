@@ -4,7 +4,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
-import { HomeIcon, LogOut } from "lucide-react";
+import { HomeIcon, LogOut, Bell } from "lucide-react";
+import NotificationCenter from "@/components/admin/NotificationCenter";
 
 const Admin = () => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -87,10 +88,13 @@ const Admin = () => {
       <header className="glass-morphism sticky top-0 z-50 border-b border-playlsd-purple/20">
         <div className="container mx-auto px-4 md:px-6 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-gradient-primary font-display">PlayLSD Admin</h1>
-          <Button variant="ghost" onClick={handleLogout} className="hover:bg-playlsd-purple/10">
-            <LogOut className="mr-2 h-4 w-4" />
-            Logout
-          </Button>
+          <div className="flex items-center space-x-2">
+            <NotificationCenter />
+            <Button variant="ghost" onClick={handleLogout} className="hover:bg-playlsd-purple/10">
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </Button>
+          </div>
         </div>
       </header>
       
