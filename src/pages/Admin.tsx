@@ -4,8 +4,10 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
-import { HomeIcon, LogOut, Bell } from "lucide-react";
+import { HomeIcon, LogOut, Bell, FileText, ListMusic } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import NotificationCenter from "@/components/admin/NotificationCenter";
+import NewsManager from "@/components/admin/NewsManager";
 
 const Admin = () => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -99,48 +101,84 @@ const Admin = () => {
       </header>
       
       <main className="container mx-auto px-4 md:px-6 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <Card className="glass-morphism">
-            <CardHeader>
-              <CardTitle>Welcome to Admin Dashboard</CardTitle>
-              <CardDescription>
-                This is a placeholder for the admin dashboard that would typically include
-                content management tools.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-300 mb-4">
-                In a full implementation, this dashboard would allow you to:
-              </p>
-              <ul className="list-disc pl-5 space-y-2 text-gray-300">
-                <li>Create and manage embedded content</li>
-                <li>Review song and playlist submissions</li>
-                <li>Manage categories and tags</li>
-                <li>View analytics and user engagement metrics</li>
-              </ul>
-            </CardContent>
-            <CardFooter>
-              <Button onClick={() => navigate("/")} className="w-full bg-playlsd-purple hover:bg-playlsd-purple-mid transition-colors">
-                Return to Site
-              </Button>
-            </CardFooter>
-          </Card>
+        <Tabs defaultValue="news" className="w-full">
+          <TabsList className="glass-morphism mb-6">
+            <TabsTrigger value="news" className="flex items-center">
+              <FileText className="mr-2 h-4 w-4" />
+              News Posts
+            </TabsTrigger>
+            <TabsTrigger value="dashboard" className="flex items-center">
+              <ListMusic className="mr-2 h-4 w-4" />
+              Dashboard
+            </TabsTrigger>
+            <TabsTrigger value="notifications" className="flex items-center">
+              <Bell className="mr-2 h-4 w-4" />
+              Notifications
+            </TabsTrigger>
+          </TabsList>
           
-          <Card className="glass-morphism">
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>
-                Overview of recent submissions and content
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-300">
-                This section would typically display recent submissions, user activity,
-                and content statistics.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+          <TabsContent value="news" className="space-y-6">
+            <NewsManager />
+          </TabsContent>
+          
+          <TabsContent value="dashboard" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Card className="glass-morphism">
+                <CardHeader>
+                  <CardTitle>Admin Dashboard</CardTitle>
+                  <CardDescription>
+                    Content management overview
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-300 mb-4">
+                    In a full implementation, this dashboard would allow you to:
+                  </p>
+                  <ul className="list-disc pl-5 space-y-2 text-gray-300">
+                    <li>Create and manage embedded content</li>
+                    <li>Review song and playlist submissions</li>
+                    <li>Manage categories and tags</li>
+                    <li>View analytics and user engagement metrics</li>
+                  </ul>
+                </CardContent>
+                <CardFooter>
+                  <Button onClick={() => navigate("/")} className="w-full bg-playlsd-purple hover:bg-playlsd-purple-mid transition-colors">
+                    Return to Site
+                  </Button>
+                </CardFooter>
+              </Card>
+              
+              <Card className="glass-morphism">
+                <CardHeader>
+                  <CardTitle>Recent Activity</CardTitle>
+                  <CardDescription>
+                    Overview of recent submissions and content
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-300">
+                    This section would typically display recent submissions, user activity,
+                    and content statistics.
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="notifications">
+            <Card className="glass-morphism">
+              <CardHeader>
+                <CardTitle>All Notifications</CardTitle>
+                <CardDescription>
+                  Manage your system notifications
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <NotificationCenter expanded={true} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </main>
     </div>
   );
