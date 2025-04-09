@@ -24,12 +24,22 @@ const Index = () => {
       id: post.id,
       title: post.title,
       description: post.description,
+      // Generate embedCode from embedUrl (for iframe embedding)
+      embedCode: post.embedType === 'youtube' 
+        ? `<iframe width="100%" height="315" src="${post.embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`
+        : post.embedType === 'spotify'
+        ? `<iframe src="${post.embedUrl}" width="100%" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>`
+        : post.embedType === 'soundcloud'
+        ? `<iframe width="100%" height="300" scrolling="no" frameborder="no" src="${post.embedUrl}"></iframe>`
+        : `<div class="embed-container">${post.embedUrl}</div>`,
       embedUrl: post.embedUrl,
       type: post.embedType,
       categories: [...post.genres, ...post.tags],
       adminName: post.author,
       date: post.date,
-      featured: post.featured
+      featured: post.featured,
+      // Add the missing 'source' property
+      source: post.embedType.charAt(0).toUpperCase() + post.embedType.slice(1)
     }));
   
   // Filter embeds if category is specified in URL
