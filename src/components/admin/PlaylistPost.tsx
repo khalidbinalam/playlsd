@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Calendar, Edit, Trash2, Tag, Music, Star, Youtube, Spotify } from "lucide-react";
+import { Calendar, Edit, Trash2, Tag, Music, Star, Youtube } from "lucide-react";
 import { 
   Card, 
   CardContent, 
@@ -32,7 +32,7 @@ const PlaylistPost: React.FC<PlaylistPostProps> = ({
   const getEmbedIcon = () => {
     switch(embedType) {
       case 'spotify':
-        return <Spotify className="h-4 w-4 mr-1" />;
+        return <Music className="h-4 w-4 mr-1 text-green-500" />;
       case 'youtube':
         return <Youtube className="h-4 w-4 mr-1" />;
       default:
