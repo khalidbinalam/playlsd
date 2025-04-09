@@ -8,7 +8,7 @@ import { CalendarIcon, User } from "lucide-react";
 
 export interface EmbedData {
   id: string;
-  type: "instagram" | "twitter" | "youtube" | "spotify" | "soundcloud" | "blog" | "html";
+  type: "instagram" | "twitter" | "youtube" | "spotify" | "soundcloud" | "blog" | "html" | "other";
   embedCode: string;
   title: string;
   description?: string;
@@ -16,6 +16,7 @@ export interface EmbedData {
   date: string;
   source: string;
   categories: string[];
+  embedUrl?: string;
 }
 
 interface EmbedCardProps {

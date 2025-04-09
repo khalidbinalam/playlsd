@@ -33,12 +33,12 @@ const Index = () => {
         ? `<iframe width="100%" height="300" scrolling="no" frameborder="no" src="${post.embedUrl}"></iframe>`
         : `<div class="embed-container">${post.embedUrl}</div>`,
       embedUrl: post.embedUrl,
-      type: post.embedType,
+      // Map the embedType from PlaylistPost to the type in EmbedData
+      type: post.embedType as EmbedData['type'],
       categories: [...post.genres, ...post.tags],
       adminName: post.author,
       date: post.date,
-      featured: post.featured,
-      // Add the missing 'source' property
+      // Add the source property by capitalizing the first letter of embedType
       source: post.embedType.charAt(0).toUpperCase() + post.embedType.slice(1)
     }));
   
