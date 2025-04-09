@@ -41,9 +41,20 @@ export const useSubmissions = () => {
     return submissionWithMeta.id; // Return ID for reference
   };
 
+  // Update submission status
+  const updateSubmissionStatus = (id: string, status: 'pending' | 'approved' | 'rejected') => {
+    const updatedSubmissions = submissions.map(submission => 
+      submission.id === id ? { ...submission, status } : submission
+    );
+    
+    setSubmissions(updatedSubmissions);
+    localStorage.setItem('adminSubmissions', JSON.stringify(updatedSubmissions));
+  };
+
   return { 
     submissions, 
     loading, 
-    addSubmission
+    addSubmission,
+    updateSubmissionStatus
   };
 };

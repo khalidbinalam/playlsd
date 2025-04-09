@@ -1,14 +1,17 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
-import { HomeIcon, LogOut, Bell, FileText, ListMusic, InboxIcon } from "lucide-react";
+import { HomeIcon, LogOut, Bell, FileText, ListMusic, InboxIcon, Music } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import NotificationCenter from "@/components/admin/NotificationCenter";
 import NewsManager from "@/components/admin/NewsManager";
 import SubmissionReview from "@/components/admin/SubmissionReview";
+import PlaylistManager from "@/components/admin/PlaylistManager";
+import { useNewsPosts } from "@/hooks/use-news-posts";
+import { useSubmissions } from "@/hooks/use-submissions";
+import { usePlaylistPosts } from "@/hooks/use-playlist-posts";
 
 const Admin = () => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -17,7 +20,6 @@ const Admin = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Check if user is admin
     const checkAdminStatus = () => {
       const adminAuth = localStorage.getItem("adminAuth");
       
@@ -102,8 +104,12 @@ const Admin = () => {
       </header>
       
       <main className="container mx-auto px-4 md:px-6 py-8">
-        <Tabs defaultValue="submissions" className="w-full">
+        <Tabs defaultValue="playlists" className="w-full">
           <TabsList className="glass-morphism mb-6">
+            <TabsTrigger value="playlists" className="flex items-center">
+              <Music className="mr-2 h-4 w-4" />
+              Playlists
+            </TabsTrigger>
             <TabsTrigger value="submissions" className="flex items-center">
               <InboxIcon className="mr-2 h-4 w-4" />
               Submissions
@@ -121,6 +127,10 @@ const Admin = () => {
               Notifications
             </TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="playlists" className="space-y-6">
+            <PlaylistManager />
+          </TabsContent>
           
           <TabsContent value="submissions" className="space-y-6">
             <SubmissionReview />
@@ -141,13 +151,13 @@ const Admin = () => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-300 mb-4">
-                    In a full implementation, this dashboard would allow you to:
+                    You can manage the following content:
                   </p>
                   <ul className="list-disc pl-5 space-y-2 text-gray-300">
-                    <li>Create and manage embedded content</li>
+                    <li>Create and manage playlists with SEO optimization</li>
                     <li>Review song and playlist submissions</li>
-                    <li>Manage categories and tags</li>
-                    <li>View analytics and user engagement metrics</li>
+                    <li>Publish news articles and updates</li>
+                    <li>Manage user notifications</li>
                   </ul>
                 </CardContent>
                 <CardFooter>
@@ -159,16 +169,18 @@ const Admin = () => {
               
               <Card className="glass-morphism">
                 <CardHeader>
-                  <CardTitle>Recent Activity</CardTitle>
+                  <CardTitle>Content Overview</CardTitle>
                   <CardDescription>
-                    Overview of recent submissions and content
+                    Published content and submissions
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-300">
-                    This section would typically display recent submissions, user activity,
-                    and content statistics.
-                  </p>
+                  <ul className="list-disc pl-5 space-y-2 text-gray-300">
+                    <li><strong>Playlists:</strong> {usePlaylistPosts().posts.filter(p => p.published).length} published, {usePlaylistPosts().posts.filter(p => !p.published).length} drafts</li>
+                    <li><strong>News Posts:</strong> {useNewsPosts().posts.filter(p => p.published).length} published, {useNewsPosts().posts.filter(p => !p.published).length} drafts</li>
+                    <li><strong>Pending Submissions:</strong> {useSubmissions().submissions.filter(s => s.status === 'pending').length}</li>
+                    <li><strong>Featured Content:</strong> {usePlaylistPosts().posts.filter(p => p.featured).length} playlists, {useNewsPosts().posts.filter(p => p.featured).length} news posts</li>
+                  </ul>
                 </CardContent>
               </Card>
             </div>

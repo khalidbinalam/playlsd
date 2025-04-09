@@ -1,420 +1,337 @@
-
 import React, { useState } from "react";
-import { Check, X, MessageSquare, Eye, Tag } from "lucide-react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { CheckIcon, XIcon, SearchIcon, Filter, ListMusic, Music, ExternalLink } from "lucide-react";
+import { useSubmissions } from "@/hooks/use-submissions";
+import { 
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { 
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { useToast } from "@/components/ui/use-toast";
 
-// Types for the submissions
-export type SubmissionType = "song" | "playlist";
+export type SubmissionType = 'song' | 'playlist';
 
 export interface Submission {
   id: string;
   type: SubmissionType;
   artistName: string;
-  title?: string; // Song title for song submissions
-  streamingLink?: string; // For song submissions
-  trackLink?: string; // For playlist submissions
-  targetPlaylist?: string; // For playlist submissions
+  title?: string;
+  streamingLink?: string;
+  trackLink?: string;
+  targetPlaylist?: string;
   email: string;
   genre: string;
   vibe: string;
   message?: string;
-  status: "pending" | "approved" | "rejected";
   date: string;
+  status: 'pending' | 'approved' | 'rejected';
 }
-
-// Sample submission data
-const sampleSubmissions: Submission[] = [
-  {
-    id: "1",
-    type: "song",
-    artistName: "Cosmic Waves",
-    title: "Journey to Andromeda",
-    streamingLink: "https://soundcloud.com/cosmicwaves/journey",
-    email: "cosmic@example.com",
-    genre: "Ambient",
-    vibe: "Dreamy",
-    message: "This track was inspired by space exploration imagery",
-    status: "pending",
-    date: new Date(Date.now() - 86400000).toISOString()
-  },
-  {
-    id: "2",
-    type: "playlist",
-    artistName: "Deep Minds",
-    trackLink: "https://spotify.com/track/deepminds",
-    targetPlaylist: "PlayLSD: Deep Meditation",
-    email: "deep@example.com",
-    genre: "Deep House",
-    vibe: "Hypnotic",
-    message: "This track would fit perfectly in your meditation playlist",
-    status: "pending",
-    date: new Date(Date.now() - 172800000).toISOString()
-  },
-  {
-    id: "3",
-    type: "song",
-    artistName: "Bass Explorer",
-    title: "Subterranean",
-    streamingLink: "https://soundcloud.com/bassexplorer/subterranean",
-    email: "bass@example.com",
-    genre: "Bass",
-    vibe: "Dark",
-    status: "approved",
-    date: new Date(Date.now() - 259200000).toISOString()
-  },
-  {
-    id: "4",
-    type: "playlist",
-    artistName: "Morning Rituals",
-    trackLink: "https://spotify.com/track/morningrituals",
-    targetPlaylist: "PlayLSD: Sunrise Rituals",
-    email: "morning@example.com",
-    genre: "Melodic Techno",
-    vibe: "Uplifting",
-    status: "rejected",
-    date: new Date(Date.now() - 345600000).toISOString()
-  }
-];
-
-interface SubmissionCardProps {
-  submission: Submission;
-  onApprove: (id: string) => void;
-  onReject: (id: string) => void;
-  onMessage: (id: string, email: string) => void;
-}
-
-const SubmissionCard: React.FC<SubmissionCardProps> = ({ 
-  submission, 
-  onApprove, 
-  onReject,
-  onMessage 
-}) => {
-  const { id, type, artistName, title, streamingLink, trackLink, targetPlaylist, email, genre, vibe, message, status, date } = submission;
-  
-  return (
-    <Card className={`glass-morphism ${status === 'approved' ? 'border-green-500/50' : status === 'rejected' ? 'border-red-500/50' : 'border-playlsd-purple/30'}`}>
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
-          <div>
-            <CardTitle className="text-lg text-gradient-primary">
-              {type === "song" ? title : targetPlaylist}
-            </CardTitle>
-            <CardDescription>
-              by {artistName} • {new Date(date).toLocaleDateString()}
-            </CardDescription>
-          </div>
-          <Badge variant={status === "pending" ? "outline" : status === "approved" ? "default" : "destructive"} className={status === "pending" ? "border-amber-500 text-amber-500" : ""}>
-            {status.charAt(0).toUpperCase() + status.slice(1)}
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-2 text-sm text-gray-300">
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="border-playlsd-purple-light text-playlsd-purple-light">
-              <Tag className="h-3 w-3 mr-1" />
-              {genre}
-            </Badge>
-            <Badge variant="outline" className="border-playlsd-purple-light text-playlsd-purple-light">
-              <Tag className="h-3 w-3 mr-1" />
-              {vibe}
-            </Badge>
-          </div>
-          
-          <p className="pt-2">
-            <strong>Link:</strong>{" "}
-            <a 
-              href={type === "song" ? streamingLink : trackLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-playlsd-purple-light hover:underline"
-            >
-              {type === "song" ? streamingLink : trackLink}
-            </a>
-          </p>
-          
-          {type === "playlist" && (
-            <p>
-              <strong>Target Playlist:</strong> {targetPlaylist}
-            </p>
-          )}
-          
-          <p>
-            <strong>Email:</strong> {email}
-          </p>
-          
-          {message && (
-            <div className="pt-2">
-              <p className="font-semibold">Message:</p>
-              <p className="italic">{message}</p>
-            </div>
-          )}
-        </div>
-      </CardContent>
-      <CardFooter className="flex justify-end space-x-2">
-        {status === "pending" && (
-          <>
-            <Button 
-              variant="outline"
-              size="sm"
-              className="border-red-500 hover:bg-red-500/10 text-red-400"
-              onClick={() => onReject(id)}
-            >
-              <X className="h-4 w-4 mr-1" />
-              Reject
-            </Button>
-            <Button 
-              variant="outline"
-              size="sm"
-              className="border-green-500 hover:bg-green-500/10 text-green-400"
-              onClick={() => onApprove(id)}
-            >
-              <Check className="h-4 w-4 mr-1" />
-              Approve
-            </Button>
-          </>
-        )}
-        <Button
-          variant="outline"
-          size="sm"
-          className="border-playlsd-purple hover:bg-playlsd-purple/10 text-playlsd-purple-light"
-          onClick={() => onMessage(id, email)}
-        >
-          <MessageSquare className="h-4 w-4 mr-1" />
-          Message
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="border-playlsd-purple hover:bg-playlsd-purple/10 text-playlsd-purple-light"
-        >
-          <Eye className="h-4 w-4" />
-        </Button>
-      </CardFooter>
-    </Card>
-  );
-};
 
 const SubmissionReview: React.FC = () => {
-  const [submissions, setSubmissions] = useState<Submission[]>(() => {
-    const storedSubmissions = localStorage.getItem('adminSubmissions');
-    return storedSubmissions ? JSON.parse(storedSubmissions) : sampleSubmissions;
-  });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterType, setFilterType] = useState<SubmissionType | "all">("all");
+  const [filterStatus, setFilterStatus] = useState<"pending" | "approved" | "rejected" | "all">("all");
   const { toast } = useToast();
-
-  // Update localStorage whenever submissions change
-  React.useEffect(() => {
-    localStorage.setItem('adminSubmissions', JSON.stringify(submissions));
-  }, [submissions]);
-
-  const approveSubmission = (id: string) => {
-    const updatedSubmissions = submissions.map(submission => 
-      submission.id === id ? { ...submission, status: "approved" } : submission
-    );
-    setSubmissions(updatedSubmissions);
-    toast({
-      title: "Submission Approved",
-      description: "The submission has been approved successfully."
-    });
-  };
-
-  const rejectSubmission = (id: string) => {
-    const updatedSubmissions = submissions.map(submission => 
-      submission.id === id ? { ...submission, status: "rejected" } : submission
-    );
-    setSubmissions(updatedSubmissions);
-    toast({
-      title: "Submission Rejected",
-      description: "The submission has been rejected."
-    });
-  };
-
-  const messageSubmitter = (id: string, email: string) => {
-    toast({
-      title: "Message Feature",
-      description: `In a full implementation, you would be able to send a message to ${email}.`
-    });
-  };
-
-  const pendingSubmissions = submissions.filter(s => s.status === "pending");
-  const approvedSubmissions = submissions.filter(s => s.status === "approved");
-  const rejectedSubmissions = submissions.filter(s => s.status === "rejected");
   
-  const songSubmissions = submissions.filter(s => s.type === "song");
-  const playlistSubmissions = submissions.filter(s => s.type === "playlist");
+  const { submissions, loading, updateSubmissionStatus } = useSubmissions();
+
+  const handleStatusChange = (id: string, status: "pending" | "approved" | "rejected") => {
+    updateSubmissionStatus(id, status);
+    
+    const submission = submissions.find(sub => sub.id === id);
+    if (submission) {
+      toast({
+        title: `Submission ${status}`,
+        description: `Submission from ${submission.artistName} has been ${status}.`,
+      });
+    }
+  };
+
+  const filteredSubmissions = submissions.filter(submission => {
+    const matchesSearch =
+      submission.artistName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (submission.title && submission.title.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      submission.email.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesType = filterType === "all" || submission.type === filterType;
+    const matchesStatus = filterStatus === "all" || submission.status === filterStatus;
+    
+    return matchesSearch && matchesType && matchesStatus;
+  });
+
+  const pendingSubmissions = filteredSubmissions.filter(submission => submission.status === "pending");
+  const approvedSubmissions = filteredSubmissions.filter(submission => submission.status === "approved");
+  const rejectedSubmissions = filteredSubmissions.filter(submission => submission.status === "rejected");
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-semibold text-gradient-primary">Submission Review</h2>
-        <div className="flex gap-2">
-          <Badge variant="outline" className="bg-playlsd-purple/10 border-playlsd-purple text-white">
-            {pendingSubmissions.length} Pending
-          </Badge>
-          <Badge variant="outline" className="bg-green-500/10 border-green-500 text-white">
-            {approvedSubmissions.length} Approved
-          </Badge>
-          <Badge variant="outline" className="bg-red-500/10 border-red-500 text-white">
-            {rejectedSubmissions.length} Rejected
-          </Badge>
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-gradient-primary">Submissions</h2>
+      </div>
+
+      <div className="glass-morphism rounded-lg p-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="relative col-span-2">
+            <Label htmlFor="search" className="sr-only">Search</Label>
+            <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
+            <Input
+              id="search"
+              placeholder="Search submissions..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 bg-playlsd-dark/50 border-playlsd-purple/30"
+            />
+          </div>
+          
+          <div>
+            <Label htmlFor="type-filter" className="sr-only">Filter by Type</Label>
+            <Select value={filterType} onValueChange={(value) => setFilterType(value as SubmissionType | "all")}>
+              <SelectTrigger id="type-filter" className="bg-playlsd-dark/50 border-playlsd-purple/30">
+                <div className="flex items-center">
+                  <Filter className="mr-2 h-4 w-4" />
+                  <SelectValue placeholder="Filter by type" />
+                </div>
+              </SelectTrigger>
+              <SelectContent position="popper">
+                <SelectItem value="all">All Types</SelectItem>
+                <SelectItem value="song">Song Submissions</SelectItem>
+                <SelectItem value="playlist">Playlist Submissions</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div>
+            <Label htmlFor="status-filter" className="sr-only">Filter by Status</Label>
+            <Select value={filterStatus} onValueChange={(value) => setFilterStatus(value as "pending" | "approved" | "rejected" | "all")}>
+              <SelectTrigger id="status-filter" className="bg-playlsd-dark/50 border-playlsd-purple/30">
+                <div className="flex items-center">
+                  <Filter className="mr-2 h-4 w-4" />
+                  <SelectValue placeholder="Filter by status" />
+                </div>
+              </SelectTrigger>
+              <SelectContent position="popper">
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="pending">Pending Only</SelectItem>
+                <SelectItem value="approved">Approved Only</SelectItem>
+                <SelectItem value="rejected">Rejected Only</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
-      <Tabs defaultValue="all" className="w-full">
-        <TabsList className="glass-morphism">
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="pending">Pending</TabsTrigger>
-          <TabsTrigger value="songs">Songs</TabsTrigger>
-          <TabsTrigger value="playlists">Playlists</TabsTrigger>
-          <TabsTrigger value="table">Table View</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="all" className="space-y-4 pt-4">
-          {submissions.length > 0 ? (
-            submissions.map(submission => (
-              <SubmissionCard 
-                key={submission.id}
-                submission={submission}
-                onApprove={approveSubmission}
-                onReject={rejectSubmission}
-                onMessage={messageSubmitter}
+      {loading ? (
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-playlsd-purple mx-auto"></div>
+          <p className="mt-4 text-gray-400">Loading submissions...</p>
+        </div>
+      ) : (
+        <Tabs defaultValue="pending" className="w-full">
+          <TabsList className="glass-morphism">
+            <TabsTrigger value="pending">
+              Pending ({pendingSubmissions.length})
+            </TabsTrigger>
+            <TabsTrigger value="approved">
+              Approved ({approvedSubmissions.length})
+            </TabsTrigger>
+            <TabsTrigger value="rejected">
+              Rejected ({rejectedSubmissions.length})
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="pending" className="mt-6">
+            {pendingSubmissions.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-400">No pending submissions found.</p>
+              </div>
+            ) : (
+              <SubmissionTable 
+                submissions={pendingSubmissions} 
+                onStatusChange={handleStatusChange} 
               />
-            ))
-          ) : (
-            <p className="text-center text-gray-400 py-8">No submissions available.</p>
-          )}
-        </TabsContent>
-        
-        <TabsContent value="pending" className="space-y-4 pt-4">
-          {pendingSubmissions.length > 0 ? (
-            pendingSubmissions.map(submission => (
-              <SubmissionCard 
-                key={submission.id}
-                submission={submission}
-                onApprove={approveSubmission}
-                onReject={rejectSubmission}
-                onMessage={messageSubmitter}
+            )}
+          </TabsContent>
+          
+          <TabsContent value="approved" className="mt-6">
+            {approvedSubmissions.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-400">No approved submissions found.</p>
+              </div>
+            ) : (
+              <SubmissionTable 
+                submissions={approvedSubmissions} 
+                onStatusChange={handleStatusChange} 
               />
-            ))
-          ) : (
-            <p className="text-center text-gray-400 py-8">No pending submissions available.</p>
-          )}
-        </TabsContent>
-        
-        <TabsContent value="songs" className="space-y-4 pt-4">
-          {songSubmissions.length > 0 ? (
-            songSubmissions.map(submission => (
-              <SubmissionCard 
-                key={submission.id}
-                submission={submission}
-                onApprove={approveSubmission}
-                onReject={rejectSubmission}
-                onMessage={messageSubmitter}
+            )}
+          </TabsContent>
+          
+          <TabsContent value="rejected" className="mt-6">
+            {rejectedSubmissions.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-400">No rejected submissions found.</p>
+              </div>
+            ) : (
+              <SubmissionTable 
+                submissions={rejectedSubmissions} 
+                onStatusChange={handleStatusChange} 
               />
-            ))
-          ) : (
-            <p className="text-center text-gray-400 py-8">No song submissions available.</p>
-          )}
-        </TabsContent>
-        
-        <TabsContent value="playlists" className="space-y-4 pt-4">
-          {playlistSubmissions.length > 0 ? (
-            playlistSubmissions.map(submission => (
-              <SubmissionCard 
-                key={submission.id}
-                submission={submission}
-                onApprove={approveSubmission}
-                onReject={rejectSubmission}
-                onMessage={messageSubmitter}
-              />
-            ))
-          ) : (
-            <p className="text-center text-gray-400 py-8">No playlist submissions available.</p>
-          )}
-        </TabsContent>
-
-        <TabsContent value="table" className="pt-4">
-          <Card className="glass-morphism">
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Artist</TableHead>
-                    <TableHead>Title/Playlist</TableHead>
-                    <TableHead>Genre</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {submissions.map(submission => (
-                    <TableRow key={submission.id}>
-                      <TableCell className="font-medium">
-                        {new Date(submission.date).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="bg-playlsd-purple/10 border-playlsd-purple-light text-playlsd-purple-light">
-                          {submission.type}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{submission.artistName}</TableCell>
-                      <TableCell>
-                        {submission.type === "song" ? submission.title : submission.targetPlaylist}
-                      </TableCell>
-                      <TableCell>{submission.genre}</TableCell>
-                      <TableCell>
-                        <Badge variant={submission.status === "pending" ? "outline" : submission.status === "approved" ? "default" : "destructive"} className={submission.status === "pending" ? "border-amber-500 text-amber-500" : ""}>
-                          {submission.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end items-center space-x-1">
-                          {submission.status === "pending" && (
-                            <>
-                              <Button 
-                                variant="outline"
-                                size="sm"
-                                className="h-8 w-8 p-0 border-red-500 hover:bg-red-500/10 text-red-400"
-                                onClick={() => rejectSubmission(submission.id)}
-                              >
-                                <X className="h-4 w-4" />
-                              </Button>
-                              <Button 
-                                variant="outline"
-                                size="sm"
-                                className="h-8 w-8 p-0 border-green-500 hover:bg-green-500/10 text-green-400"
-                                onClick={() => approveSubmission(submission.id)}
-                              >
-                                <Check className="h-4 w-4" />
-                              </Button>
-                            </>
-                          )}
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-8 w-8 p-0 border-playlsd-purple hover:bg-playlsd-purple/10 text-playlsd-purple-light"
-                            onClick={() => messageSubmitter(submission.id, submission.email)}
-                          >
-                            <MessageSquare className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            )}
+          </TabsContent>
+        </Tabs>
+      )}
     </div>
+  );
+};
+
+interface SubmissionTableProps {
+  submissions: Submission[];
+  onStatusChange: (id: string, status: "pending" | "approved" | "rejected") => void;
+}
+
+const SubmissionTable: React.FC<SubmissionTableProps> = ({ submissions, onStatusChange }) => {
+  return (
+    <Table className="glass-morphism">
+      <TableCaption>A list of your submissions.</TableCaption>
+      <TableHeader>
+        <TableRow>
+          <TableHead className="w-[100px]">Type</TableHead>
+          <TableHead>Artist</TableHead>
+          <TableHead>Track Info</TableHead>
+          <TableHead>Genre</TableHead>
+          <TableHead>Vibe</TableHead>
+          <TableHead className="text-right">Actions</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {submissions.map((submission) => (
+          <TableRow key={submission.id}>
+            <TableCell className="font-medium">
+              {submission.type === 'song' ? (
+                <div className="flex items-center">
+                  <Music className="mr-2 h-4 w-4" />
+                  Song
+                </div>
+              ) : (
+                <div className="flex items-center">
+                  <ListMusic className="mr-2 h-4 w-4" />
+                  Playlist
+                </div>
+              )}
+            </TableCell>
+            <TableCell>
+              <div className="flex items-center space-x-2">
+                <Avatar>
+                  <AvatarFallback>{submission.artistName.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <span>{submission.artistName}</span>
+              </div>
+            </TableCell>
+            <TableCell>
+              <Accordion type="single" collapsible>
+                <AccordionItem value={submission.id}>
+                  <AccordionTrigger>
+                    {submission.title || "No Title"}
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <Card className="glass-morphism">
+                      <CardHeader>
+                        <CardTitle>Submission Details</CardTitle>
+                        <CardDescription>
+                          Submitted on {new Date(submission.date).toLocaleDateString()}
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="grid gap-4">
+                        <div className="flex items-center space-x-4">
+                          {submission.streamingLink && (
+                            <Button variant="secondary" size="sm" asChild>
+                              <a href={submission.streamingLink} target="_blank" rel="noopener noreferrer" className="flex items-center">
+                                Streaming Link <ExternalLink className="ml-2 h-4 w-4" />
+                              </a>
+                            </Button>
+                          )}
+                          {submission.trackLink && (
+                            <Button variant="secondary" size="sm" asChild>
+                              <a href={submission.trackLink} target="_blank" rel="noopener noreferrer" className="flex items-center">
+                                Track Link <ExternalLink className="ml-2 h-4 w-4" />
+                              </a>
+                            </Button>
+                          )}
+                        </div>
+                        
+                        {submission.targetPlaylist && (
+                          <div className="grid gap-1">
+                            <div className="text-sm font-medium">Target Playlist</div>
+                            <div className="text-gray-400">{submission.targetPlaylist}</div>
+                          </div>
+                        )}
+                        
+                        <div className="grid gap-1">
+                          <div className="text-sm font-medium">Email</div>
+                          <div className="text-gray-400">{submission.email}</div>
+                        </div>
+                        
+                        {submission.message && (
+                          <div className="grid gap-1">
+                            <div className="text-sm font-medium">Message</div>
+                            <div className="text-gray-400">{submission.message}</div>
+                          </div>
+                        )}
+                      </CardContent>
+                      <CardFooter className="justify-between">
+                        <Badge variant="outline">{submission.status}</Badge>
+                      </CardFooter>
+                    </Card>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+            </TableCell>
+            <TableCell>{submission.genre}</TableCell>
+            <TableCell>{submission.vibe}</TableCell>
+            <TableCell className="text-right">
+              {submission.status === "pending" ? (
+                <div className="flex justify-end space-x-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onStatusChange(submission.id, "approved")}
+                  >
+                    <CheckIcon className="h-4 w-4 text-green-500" />
+                    Approve
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onStatusChange(submission.id, "rejected")}
+                  >
+                    <XIcon className="h-4 w-4 text-red-500" />
+                    Reject
+                  </Button>
+                </div>
+              ) : (
+                <Badge>{submission.status}</Badge>
+              )}
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   );
 };
 
