@@ -4,23 +4,42 @@ import MainLayout from "@/components/layout/MainLayout";
 import Hero from "@/components/home/Hero";
 import FeaturedCategories from "@/components/home/FeaturedCategories";
 import EmbedFeed from "@/components/embeds/EmbedFeed";
-import { sampleEmbeds } from "@/data/sampleEmbeds";
 import { Separator } from "@/components/ui/separator";
 import { useLocation } from "react-router-dom";
+import { usePlaylistPosts } from "@/hooks/use-playlist-posts";
+import { EmbedData } from "@/components/embeds/EmbedCard";
 
 const Index = () => {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const categoryParam = queryParams.get("category");
   
+  // Get playlists from the usePlaylistPosts hook instead of sampleEmbeds
+  const { posts } = usePlaylistPosts();
+  
+  // Convert playlist posts to the format expected by EmbedFeed
+  const playlistEmbeds: EmbedData[] = posts
+    .filter(post => post.published) // Only show published playlists
+    .map(post => ({
+      id: post.id,
+      title: post.title,
+      description: post.description,
+      embedUrl: post.embedUrl,
+      type: post.embedType,
+      categories: [...post.genres, ...post.tags],
+      adminName: post.author,
+      date: post.date,
+      featured: post.featured
+    }));
+  
   // Filter embeds if category is specified in URL
   const filteredEmbeds = categoryParam
-    ? sampleEmbeds.filter((embed) => 
+    ? playlistEmbeds.filter((embed) => 
         embed.categories.some((cat) => 
           cat.toLowerCase().replace(/\s+/g, "-") === categoryParam.toLowerCase()
         )
       )
-    : sampleEmbeds;
+    : playlistEmbeds;
   
   // Determine if we're showing a filtered view
   const isFilteredView = !!categoryParam;
@@ -56,7 +75,17 @@ const Index = () => {
           Discover our curated music playlists from YouTube and Spotify. Only verified admins can create and share these playlists.
         </p>
         
-        <EmbedFeed embeds={filteredEmbeds} />
+        {filteredEmbeds.length === 0 ? (
+          <div className="text-center py-16">
+            <p className="text-lg text-gray-400">
+              {isFilteredView 
+                ? `No playlists found in the ${getCategoryDisplayName()} category.` 
+                : "No playlists have been published yet. Check back soon!"}
+            </p>
+          </div>
+        ) : (
+          <EmbedFeed embeds={filteredEmbeds} />
+        )}
       </div>
     </MainLayout>
   );
