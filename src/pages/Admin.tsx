@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,20 @@ const Admin = () => {
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  // Move all hook calls to the top level of the component
+  const { posts: playlistPosts } = usePlaylistPosts();
+  const { posts: newsPosts } = useNewsPosts();
+  const { submissions } = useSubmissions();
+  
+  // Pre-calculate counts to avoid calling hooks in JSX
+  const publishedPlaylists = playlistPosts.filter(p => p.published).length;
+  const draftPlaylists = playlistPosts.filter(p => !p.published).length;
+  const publishedNews = newsPosts.filter(p => p.published).length;
+  const draftNews = newsPosts.filter(p => !p.published).length;
+  const pendingSubmissions = submissions.filter(s => s.status === 'pending').length;
+  const featuredPlaylists = playlistPosts.filter(p => p.featured).length;
+  const featuredNews = newsPosts.filter(p => p.featured).length;
 
   useEffect(() => {
     const checkAdminStatus = () => {
@@ -176,10 +191,10 @@ const Admin = () => {
                 </CardHeader>
                 <CardContent>
                   <ul className="list-disc pl-5 space-y-2 text-gray-300">
-                    <li><strong>Playlists:</strong> {usePlaylistPosts().posts.filter(p => p.published).length} published, {usePlaylistPosts().posts.filter(p => !p.published).length} drafts</li>
-                    <li><strong>News Posts:</strong> {useNewsPosts().posts.filter(p => p.published).length} published, {useNewsPosts().posts.filter(p => !p.published).length} drafts</li>
-                    <li><strong>Pending Submissions:</strong> {useSubmissions().submissions.filter(s => s.status === 'pending').length}</li>
-                    <li><strong>Featured Content:</strong> {usePlaylistPosts().posts.filter(p => p.featured).length} playlists, {useNewsPosts().posts.filter(p => p.featured).length} news posts</li>
+                    <li><strong>Playlists:</strong> {publishedPlaylists} published, {draftPlaylists} drafts</li>
+                    <li><strong>News Posts:</strong> {publishedNews} published, {draftNews} drafts</li>
+                    <li><strong>Pending Submissions:</strong> {pendingSubmissions}</li>
+                    <li><strong>Featured Content:</strong> {featuredPlaylists} playlists, {featuredNews} news posts</li>
                   </ul>
                 </CardContent>
               </Card>
