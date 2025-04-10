@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
@@ -6,12 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { UserPlus, Check, X } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
-
-type Friend = {
-  id: string;
-  full_name: string;
-  avatar_url: string | null;
-};
+import { Friend } from '@/integrations/supabase/database.types';
 
 const FriendSuggestions = () => {
   const { user } = useAuth();
@@ -26,8 +20,12 @@ const FriendSuggestions = () => {
     
     const fetchSuggestions = async () => {
       try {
+        // For now, get a few random profiles as suggestions
         const { data, error } = await supabase
-          .rpc('get_friend_suggestions', { user_id: user.id });
+          .from('profiles')
+          .select('id, full_name, avatar_url')
+          .neq('id', user.id)
+          .limit(5);
           
         if (error) {
           console.error('Error fetching suggestions:', error);

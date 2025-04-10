@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,29 +6,16 @@ import { useToast } from '@/components/ui/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Send, Music, RefreshCw, UserPlus, X } from 'lucide-react';
+import { Send, Music, RefreshCw, X } from 'lucide-react';
 import ChatMessage from '@/components/chat/ChatMessage';
 import FriendSuggestions from '@/components/chat/FriendSuggestions';
 import ProfileSettings from '@/components/chat/ProfileSettings';
-
-type ChatMessage = {
-  id: string;
-  user_id: string;
-  content: string;
-  spotify_url: string | null;
-  created_at: string;
-  expires_at: string;
-  profiles: {
-    full_name: string;
-    avatar_url: string | null;
-  };
-};
+import { ChatMessage as ChatMessageType } from '@/integrations/supabase/database.types';
 
 const MusicChat = () => {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [messages, setMessages] = useState<ChatMessageType[]>([]);
   const [content, setContent] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [showProfile, setShowProfile] = useState(false);
