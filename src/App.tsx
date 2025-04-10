@@ -5,6 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import Playlists from "./pages/Playlists";
+import PlaylistDetail from "./pages/PlaylistDetail";
 import NotFound from "./pages/NotFound";
 import SubmitSong from "./pages/SubmitSong";
 import SubmitPlaylist from "./pages/SubmitPlaylist";
@@ -20,6 +22,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/playlists" element={<Playlists />} />
+          <Route path="/playlist/:slug" element={<PlaylistDetail />} />
           <Route path="/submit-song" element={<SubmitSong />} />
           <Route path="/submit-playlist" element={<SubmitPlaylist />} />
           <Route path="/admin" element={<Admin />} />

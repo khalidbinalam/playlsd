@@ -40,6 +40,11 @@ const Navbar = () => {
       icon: <Home className="mr-2 h-4 w-4" />
     }, 
     {
+      name: "Playlists",
+      path: "/playlists",
+      icon: <ListMusic className="mr-2 h-4 w-4" />
+    },
+    {
       name: "Submit Song",
       path: "/submit-song",
       icon: <Music className="mr-2 h-4 w-4" />
