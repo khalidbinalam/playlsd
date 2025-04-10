@@ -1,36 +1,33 @@
 
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Music, Home, ListMusic, Send, Settings } from "lucide-react";
+import { Menu, X, Music, Home, ListMusic, Send, Settings, LogIn, LogOut, User } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import AdminLoginModal from "../admin/AdminLoginModal";
+import { useAuth } from "@/context/AuthContext";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
   const { toast } = useToast();
+  const { user, profile, isAdmin, signOut } = useAuth();
+  const navigate = useNavigate();
   
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
   
-  const openAdminModal = () => {
-    setIsAdminModalOpen(true);
-  };
-  
-  // Check if user is already logged in as admin
-  const isAdmin = () => {
-    const adminAuth = localStorage.getItem("adminAuth");
-    if (adminAuth) {
-      try {
-        const { isAdmin } = JSON.parse(adminAuth);
-        return isAdmin;
-      } catch (error) {
-        return false;
-      }
-    }
-    return false;
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
   };
   
   const navLinks = [
@@ -56,8 +53,8 @@ const Navbar = () => {
     }
   ];
   
-  // Add Admin Dashboard link if user is logged in
-  if (isAdmin()) {
+  // Add Admin Dashboard link if user is admin
+  if (isAdmin) {
     navLinks.push({
       name: "Admin Dashboard",
       path: "/admin",
@@ -84,13 +81,42 @@ const Navbar = () => {
               {link.name}
             </Link>
           ))}
-          {!isAdmin() && (
+          
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="ml-2 hover:bg-playlsd-purple/10 flex items-center gap-2">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback className="bg-playlsd-purple/30">
+                      {profile?.full_name ? profile.full_name.charAt(0) : user.email?.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="hidden md:inline">{profile?.full_name || user.email}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 glass-morphism border-playlsd-purple/20">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {isAdmin && (
+                  <DropdownMenuItem onClick={() => navigate('/admin')} className="cursor-pointer">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Admin Dashboard</span>
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Sign Out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
             <Button 
               variant="ghost" 
-              onClick={openAdminModal} 
-              className="ml-2 hover:bg-playlsd-purple/10"
+              onClick={() => navigate('/auth')} 
+              className="ml-2 hover:bg-playlsd-purple/10 flex items-center"
             >
-              Admin
+              <LogIn className="mr-2 h-4 w-4" />
+              Sign In
             </Button>
           )}
         </div>
@@ -125,23 +151,45 @@ const Navbar = () => {
                 {link.name}
               </Link>
             ))}
-            {!isAdmin() && (
+            
+            {user ? (
+              <>
+                <div className="px-3 py-2 flex items-center">
+                  <Avatar className="h-8 w-8 mr-2">
+                    <AvatarFallback className="bg-playlsd-purple/30">
+                      {profile?.full_name ? profile.full_name.charAt(0) : user.email?.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span>{profile?.full_name || user.email}</span>
+                </div>
+                <Button 
+                  variant="ghost" 
+                  onClick={() => {
+                    handleSignOut();
+                    setIsMenuOpen(false);
+                  }} 
+                  className="w-full justify-start hover:bg-playlsd-purple/10"
+                >
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign Out
+                </Button>
+              </>
+            ) : (
               <Button 
                 variant="ghost" 
                 onClick={() => {
+                  navigate('/auth');
                   setIsMenuOpen(false);
-                  openAdminModal();
                 }} 
                 className="w-full justify-start hover:bg-playlsd-purple/10"
               >
-                Admin
+                <LogIn className="mr-2 h-4 w-4" />
+                Sign In
               </Button>
             )}
           </div>
         </div>
       )}
-
-      <AdminLoginModal isOpen={isAdminModalOpen} onClose={() => setIsAdminModalOpen(false)} />
     </nav>
   );
 };
