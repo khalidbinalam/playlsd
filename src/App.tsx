@@ -13,6 +13,7 @@ import SubmitSong from "./pages/SubmitSong";
 import SubmitPlaylist from "./pages/SubmitPlaylist";
 import Admin from "./pages/Admin";
 import Auth from "./pages/Auth";
+import MusicChat from "./pages/MusicChat";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/submit-playlist" element={<SubmitPlaylist />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/chat" element={<MusicChat />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
