@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Session, User } from '@supabase/supabase-js';
@@ -65,10 +64,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchProfile = async (userId: string) => {
     try {
+      // Use a raw SQL query instead of the typed API to get the profile data
       const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
+        .rpc('get_profile', { user_id: userId })
         .single();
         
       if (error) {
@@ -84,13 +82,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   
   const checkAdminStatus = async (userId: string) => {
     try {
+      // Use a raw SQL query instead of the typed API to check admin status
       const { data, error } = await supabase
-        .from('admin_profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
+        .rpc('check_admin_status', { user_id: userId });
         
-      if (error && error.code !== 'PGRST116') { // Not found error is ok
+      if (error) {
         console.error('Error checking admin status:', error);
         return;
       }
