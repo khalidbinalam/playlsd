@@ -31,7 +31,7 @@ const FriendSuggestions = () => {
           return;
         }
         
-        setSuggestions(data || []);
+        setSuggestions(data as Friend[]);
       } catch (error) {
         console.error('Error:', error);
       }
@@ -61,8 +61,8 @@ const FriendSuggestions = () => {
           return;
         }
         
-        setFriends(acceptedFriends || []);
-        setPendingRequests(pendingFriends || []);
+        setFriends(acceptedFriends as Friend[]);
+        setPendingRequests(pendingFriends as Friend[]);
       } catch (error) {
         console.error('Error:', error);
       } finally {

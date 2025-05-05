@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import { supabase } from '@/integrations/supabase/client';
@@ -33,7 +32,7 @@ const MusicChat = () => {
         return;
       }
       
-      setMessages(data || []);
+      setMessages(data as ChatMessageType[]);
     } catch (error) {
       console.error('Error:', error);
     } finally {
