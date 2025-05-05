@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import MainLayout from '@/components/layout/MainLayout';
 import { supabase } from '@/integrations/supabase/client';
@@ -25,19 +26,7 @@ const MusicChat = () => {
     if (!user) return;
     
     try {
-      const { data, error } = await supabase
-        .from('chat_messages')
-        .select(`
-          id,
-          user_id,
-          content,
-          spotify_url,
-          created_at,
-          expires_at,
-          profiles:user_id(full_name, avatar_url)
-        `)
-        .order('created_at', { ascending: false })
-        .limit(50);
+      const { data, error } = await supabase.rpc('get_chat_messages');
         
       if (error) {
         console.error('Error fetching messages:', error);
@@ -103,13 +92,11 @@ const MusicChat = () => {
       
       const spotify_url = extractSpotifyUrl(content);
       
-      const { error } = await supabase
-        .from('chat_messages')
-        .insert({
-          user_id: user.id,
-          content,
-          spotify_url
-        });
+      const { error } = await supabase.rpc('send_chat_message', {
+        user_id: user.id,
+        content,
+        spotify_url
+      });
         
       if (error) {
         toast({

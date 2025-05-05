@@ -80,14 +80,12 @@ const ProfileSettings = ({ onClose }: ProfileSettingsProps) => {
     try {
       setIsLoading(true);
       
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          full_name: fullName,
-          bio,
-          avatar_url: avatarUrl
-        })
-        .eq('id', user.id);
+      const { error } = await supabase.rpc('update_profile', {
+        user_id: user.id,
+        full_name: fullName,
+        bio,
+        avatar_url: avatarUrl
+      });
         
       if (error) {
         toast({

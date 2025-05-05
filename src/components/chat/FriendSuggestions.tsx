@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
@@ -20,12 +21,10 @@ const FriendSuggestions = () => {
     
     const fetchSuggestions = async () => {
       try {
-        // For now, get a few random profiles as suggestions
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('id, full_name, avatar_url')
-          .neq('id', user.id)
-          .limit(5);
+        // For now, get a few random profiles as suggestions using RPC
+        const { data, error } = await supabase.rpc('get_friend_suggestions', {
+          user_id: user.id
+        });
           
         if (error) {
           console.error('Error fetching suggestions:', error);
@@ -40,38 +39,30 @@ const FriendSuggestions = () => {
     
     const fetchFriends = async () => {
       try {
-        // Get accepted friends
-        const { data: acceptedFriends, error: friendsError } = await supabase
-          .from('friends')
-          .select(`
-            friend_id,
-            profiles:friend_id(id, full_name, avatar_url)
-          `)
-          .eq('user_id', user.id)
-          .eq('status', 'accepted');
+        // Get accepted friends using RPC
+        const { data: acceptedFriends, error: friendsError } = await supabase.rpc(
+          'get_accepted_friends',
+          { user_id: user.id }
+        );
           
         if (friendsError) {
           console.error('Error fetching friends:', friendsError);
           return;
         }
         
-        // Get pending friend requests
-        const { data: pendingFriends, error: pendingError } = await supabase
-          .from('friends')
-          .select(`
-            user_id,
-            profiles:user_id(id, full_name, avatar_url)
-          `)
-          .eq('friend_id', user.id)
-          .eq('status', 'pending');
+        // Get pending friend requests using RPC
+        const { data: pendingFriends, error: pendingError } = await supabase.rpc(
+          'get_pending_requests',
+          { user_id: user.id }
+        );
           
         if (pendingError) {
           console.error('Error fetching pending requests:', pendingError);
           return;
         }
         
-        setFriends(acceptedFriends?.map(f => f.profiles) || []);
-        setPendingRequests(pendingFriends?.map(f => f.profiles) || []);
+        setFriends(acceptedFriends || []);
+        setPendingRequests(pendingFriends || []);
       } catch (error) {
         console.error('Error:', error);
       } finally {
@@ -87,13 +78,10 @@ const FriendSuggestions = () => {
     if (!user) return;
     
     try {
-      const { error } = await supabase
-        .from('friends')
-        .insert({
-          user_id: user.id,
-          friend_id: friendId,
-          status: 'pending'
-        });
+      const { data, error } = await supabase.rpc('send_friend_request', {
+        user_id: user.id,
+        friend_id: friendId
+      });
         
       if (error) {
         toast({
@@ -124,52 +112,36 @@ const FriendSuggestions = () => {
     if (!user) return;
     
     try {
-      if (accept) {
-        // Accept the request
-        const { error } = await supabase
-          .from('friends')
-          .update({ status: 'accepted' })
-          .eq('user_id', friendId)
-          .eq('friend_id', user.id);
+      const { error } = await supabase.rpc('respond_to_friend_request', {
+        user_id: user.id,
+        friend_id: friendId,
+        accept: accept
+      });
           
-        if (error) {
-          toast({
-            title: "Error",
-            description: error.message,
-            variant: "destructive"
-          });
-          return;
-        }
-        
+      if (error) {
         toast({
-          title: "Success",
-          description: "Friend request accepted!"
+          title: "Error",
+          description: error.message,
+          variant: "destructive"
         });
-      } else {
-        // Reject the request
-        const { error } = await supabase
-          .from('friends')
-          .update({ status: 'rejected' })
-          .eq('user_id', friendId)
-          .eq('friend_id', user.id);
-          
-        if (error) {
-          toast({
-            title: "Error",
-            description: error.message,
-            variant: "destructive"
-          });
-          return;
-        }
-        
-        toast({
-          title: "Success",
-          description: "Friend request rejected"
-        });
+        return;
       }
+      
+      toast({
+        title: "Success",
+        description: accept ? "Friend request accepted!" : "Friend request rejected"
+      });
       
       // Remove from pending requests
       setPendingRequests(prev => prev.filter(p => p.id !== friendId));
+      
+      // If accepted, add to friends list
+      if (accept) {
+        const friendToAdd = pendingRequests.find(p => p.id === friendId);
+        if (friendToAdd) {
+          setFriends(prev => [...prev, friendToAdd]);
+        }
+      }
     } catch (error: any) {
       toast({
         title: "Error",
