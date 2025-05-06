@@ -22,7 +22,7 @@ export type ChatMessage = {
 export type Tables = {
   profiles: {
     id: string;
-    full_name: string;
+    full_name: string | null;
     avatar_url: string | null;
     bio: string | null;
   };
@@ -51,7 +51,7 @@ export type Functions = {
   };
   get_profile: {
     Args: { user_id: string };
-    Returns: Tables["profiles"];
+    Returns: Tables["profiles"][];
   };
   get_friend_suggestions: {
     Args: { user_id: string };

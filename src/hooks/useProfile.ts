@@ -26,7 +26,12 @@ export function useProfile(userId: string | undefined) {
           return;
         }
         
-        setProfile(data);
+        // The RPC function returns an array, but we only need the first item
+        if (Array.isArray(data) && data.length > 0) {
+          setProfile(data[0] as Tables['profiles']);
+        } else {
+          setProfile(null);
+        }
       } catch (error) {
         console.error('Error fetching profile:', error);
       } finally {

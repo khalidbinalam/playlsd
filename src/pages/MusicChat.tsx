@@ -33,7 +33,15 @@ const MusicChat = () => {
         return;
       }
       
-      setMessages(data || []);
+      // Convert the data to the correct ChatMessageType format
+      const typedMessages = data?.map((msg: any) => ({
+        ...msg,
+        profiles: typeof msg.profiles === 'string' 
+          ? JSON.parse(msg.profiles) 
+          : msg.profiles
+      })) as ChatMessageType[];
+      
+      setMessages(typedMessages || []);
     } catch (error) {
       console.error('Error:', error);
     } finally {

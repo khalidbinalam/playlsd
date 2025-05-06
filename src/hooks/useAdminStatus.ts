@@ -22,12 +22,14 @@ export function useAdminStatus(userId: string | undefined) {
           
         if (error) {
           console.error('Error checking admin status:', error);
+          setIsAdmin(false);
           return;
         }
         
         setIsAdmin(!!data);
       } catch (error) {
         console.error('Error checking admin status:', error);
+        setIsAdmin(false);
       } finally {
         setIsLoading(false);
       }
