@@ -31,7 +31,7 @@ const FriendSuggestions = () => {
           return;
         }
         
-        setSuggestions(data as Friend[]);
+        setSuggestions(data || []);
       } catch (error) {
         console.error('Error:', error);
       }
@@ -61,8 +61,8 @@ const FriendSuggestions = () => {
           return;
         }
         
-        setFriends(acceptedFriends as Friend[]);
-        setPendingRequests(pendingFriends as Friend[]);
+        setFriends(acceptedFriends || []);
+        setPendingRequests(pendingFriends || []);
       } catch (error) {
         console.error('Error:', error);
       } finally {
@@ -115,7 +115,7 @@ const FriendSuggestions = () => {
       const { error } = await supabase.rpc('respond_to_friend_request', {
         user_id: user.id,
         friend_id: friendId,
-        accept: accept
+        accept
       });
           
       if (error) {

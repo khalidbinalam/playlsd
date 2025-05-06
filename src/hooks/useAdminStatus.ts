@@ -16,7 +16,9 @@ export function useAdminStatus(userId: string | undefined) {
     const checkAdminStatus = async () => {
       try {
         // Use the RPC function to check admin status
-        const { data, error } = await supabase.rpc('check_admin_status', { user_id: userId });
+        const { data, error } = await supabase.rpc('check_admin_status', { 
+          user_id: userId 
+        });
           
         if (error) {
           console.error('Error checking admin status:', error);

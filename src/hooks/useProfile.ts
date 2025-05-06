@@ -1,10 +1,10 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { User } from '@supabase/supabase-js';
+import { Tables } from '@/integrations/supabase/database.types';
 
 export function useProfile(userId: string | undefined) {
-  const [profile, setProfile] = useState<any | null>(null);
+  const [profile, setProfile] = useState<Tables['profiles'] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -17,7 +17,9 @@ export function useProfile(userId: string | undefined) {
     const fetchProfile = async () => {
       try {
         // Use the RPC function to get the profile data
-        const { data, error } = await supabase.rpc('get_profile', { user_id: userId });
+        const { data, error } = await supabase.rpc('get_profile', { 
+          user_id: userId 
+        });
           
         if (error) {
           console.error('Error fetching profile:', error);

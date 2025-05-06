@@ -9,13 +9,153 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      chat_messages: {
+        Row: {
+          content: string
+          created_at: string
+          expires_at: string
+          id: string
+          spotify_url: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          spotify_url?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          spotify_url?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      friends: {
+        Row: {
+          created_at: string
+          friend_id: string
+          id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          friend_id: string
+          id?: string
+          status: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          friend_id?: string
+          id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          full_name: string | null
+          id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          full_name?: string | null
+          id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          full_name?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_admin_status: {
+        Args: { user_id: string }
+        Returns: boolean
+      }
+      get_accepted_friends: {
+        Args: { user_id: string }
+        Returns: {
+          id: string
+          full_name: string
+          avatar_url: string
+        }[]
+      }
+      get_chat_messages: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          user_id: string
+          content: string
+          spotify_url: string
+          created_at: string
+          expires_at: string
+          profiles: Json
+        }[]
+      }
+      get_friend_suggestions: {
+        Args: { user_id: string }
+        Returns: {
+          id: string
+          full_name: string
+          avatar_url: string
+        }[]
+      }
+      get_pending_requests: {
+        Args: { user_id: string }
+        Returns: {
+          id: string
+          full_name: string
+          avatar_url: string
+        }[]
+      }
+      get_profile: {
+        Args: { user_id: string }
+        Returns: {
+          avatar_url: string | null
+          bio: string | null
+          full_name: string | null
+          id: string
+        }[]
+      }
+      respond_to_friend_request: {
+        Args: { user_id: string; friend_id: string; accept: boolean }
+        Returns: boolean
+      }
+      send_chat_message: {
+        Args: { user_id: string; content: string; spotify_url: string }
+        Returns: boolean
+      }
+      send_friend_request: {
+        Args: { user_id: string; friend_id: string }
+        Returns: boolean
+      }
+      update_profile: {
+        Args: {
+          user_id: string
+          full_name: string
+          bio: string
+          avatar_url: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
